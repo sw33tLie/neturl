@@ -206,35 +206,40 @@ func unescape(s string, mode encoding) (string, error) {
 		switch s[i] {
 		case '%':
 			n++
-			if i+2 >= len(s) || !ishex(s[i+1]) || !ishex(s[i+2]) {
-				s = s[i:]
-				if len(s) > 3 {
-					s = s[:3]
+
+			// SWEETFREEDOM
+
+			/*
+				if i+2 >= len(s) || !ishex(s[i+1]) || !ishex(s[i+2]) {
+					s = s[i:]
+					if len(s) > 3 {
+						s = s[:3]
+					}
+					return "", EscapeError(s)
 				}
-				return "", EscapeError(s)
-			}
-			// Per https://tools.ietf.org/html/rfc3986#page-21
-			// in the host component %-encoding can only be used
-			// for non-ASCII bytes.
-			// But https://tools.ietf.org/html/rfc6874#section-2
-			// introduces %25 being allowed to escape a percent sign
-			// in IPv6 scoped-address literals. Yay.
-			if mode == encodeHost && unhex(s[i+1]) < 8 && s[i:i+3] != "%25" {
-				return "", EscapeError(s[i : i+3])
-			}
-			if mode == encodeZone {
-				// RFC 6874 says basically "anything goes" for zone identifiers
-				// and that even non-ASCII can be redundantly escaped,
-				// but it seems prudent to restrict %-escaped bytes here to those
-				// that are valid host name bytes in their unescaped form.
-				// That is, you can use escaping in the zone identifier but not
-				// to introduce bytes you couldn't just write directly.
-				// But Windows puts spaces here! Yay.
-				v := unhex(s[i+1])<<4 | unhex(s[i+2])
-				if s[i:i+3] != "%25" && v != ' ' && shouldEscape(v, encodeHost) {
+				// Per https://tools.ietf.org/html/rfc3986#page-21
+				// in the host component %-encoding can only be used
+				// for non-ASCII bytes.
+				// But https://tools.ietf.org/html/rfc6874#section-2
+				// introduces %25 being allowed to escape a percent sign
+				// in IPv6 scoped-address literals. Yay.
+				if mode == encodeHost && unhex(s[i+1]) < 8 && s[i:i+3] != "%25" {
 					return "", EscapeError(s[i : i+3])
 				}
-			}
+				if mode == encodeZone {
+					// RFC 6874 says basically "anything goes" for zone identifiers
+					// and that even non-ASCII can be redundantly escaped,
+					// but it seems prudent to restrict %-escaped bytes here to those
+					// that are valid host name bytes in their unescaped form.
+					// That is, you can use escaping in the zone identifier but not
+					// to introduce bytes you couldn't just write directly.
+					// But Windows puts spaces here! Yay.
+					v := unhex(s[i+1])<<4 | unhex(s[i+2])
+					if s[i:i+3] != "%25" && v != ' ' && shouldEscape(v, encodeHost) {
+						return "", EscapeError(s[i : i+3])
+					}
+				}
+			*/
 			i += 3
 		case '+':
 			hasPlus = mode == encodeQueryComponent
